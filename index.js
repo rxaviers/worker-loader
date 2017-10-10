@@ -54,8 +54,12 @@ module.exports.pitch = function pitch(request) {
   workerCompiler.runAsChild((err, entries, compilation) => {
     if (err) return callback(err);
     if (entries[0]) {
-      const workerFile = entries[0].files[0];
-      const workerFactory = getWorker(workerFile, compilation.assets[workerFile].source(), query);
+      let workerFile = entries[0].files[0];
+      const content = compilation.assets[workerFile].source();
+      if (outputOptions.publicUriPrefix) {
+        workerFile = `${outputOptions.publicUriPrefix}${workerFile}`;
+      }
+      const workerFactory = getWorker(workerFile, content, query);
       if (query.fallback === false) {
         delete this._compilation.assets[workerFile];
       }
